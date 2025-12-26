@@ -1,0 +1,5 @@
+{
+  "name": "OmniConverter",
+  "description": "一个高级、简洁且强大的本地文件格式转换器。支持图片、电子书等多种格式的批量处理与转换，完全本地运行，保护隐私。",
+  "requestFramePermissions": []
+}
