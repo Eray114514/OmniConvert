@@ -15,12 +15,19 @@ export const getFileCategory = (file: File): FileCategory => {
   return 'unknown';
 };
 
-export const getAvailableFormats = (category: FileCategory): FormatOption[] => {
+export const getAvailableFormats = (category: FileCategory, filename?: string): FormatOption[] => {
   switch (category) {
     case 'image':
       return IMAGE_FORMATS;
-    case 'ebook':
+    case 'ebook': {
+      if (!filename) return EBOOK_FORMATS;
+      const ext = getFileExtension(filename);
+      // Requirement: Remove PDF output for EPUB/MOBI inputs
+      if (ext === 'epub' || ext === 'mobi' || ext === 'azw3') {
+        return EBOOK_FORMATS.filter(f => f.value !== 'pdf');
+      }
       return EBOOK_FORMATS;
+    }
     default:
       return [];
   }
