@@ -3,6 +3,7 @@ import { FileItem, ConversionStatus } from '../types';
 import { formatFileSize, getAvailableFormats } from '../utils/fileUtils';
 import { X, CheckCircle2, AlertCircle, FileImage, FileAudio, FileVideo, FileText, File as FileIcon, Loader2, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
+import CustomSelect from './CustomSelect';
 
 interface FileCardProps {
   item: FileItem;
@@ -33,7 +34,9 @@ const FileCard: React.FC<FileCardProps> = ({ item, onRemove, onFormatChange }) =
     if (item.resultUrl) {
       const link = document.createElement('a');
       link.href = item.resultUrl;
-      link.download = `converted_${item.name.substring(0, item.name.lastIndexOf('.'))}.${item.targetFormat}`;
+      const dotIndex = item.name.lastIndexOf('.');
+      const baseName = dotIndex > -1 ? item.name.substring(0, dotIndex) : item.name;
+      link.download = `converted_${baseName}.${item.targetFormat}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -89,16 +92,13 @@ const FileCard: React.FC<FileCardProps> = ({ item, onRemove, onFormatChange }) =
         {!isCompleted && !isConverting && !isPending && availableFormats.length > 0 && (
           <div className="flex items-center gap-2 flex-1 sm:flex-none">
             <span className="text-xs text-slate-400 dark:text-gray-500 font-medium whitespace-nowrap">转为</span>
-            <select
+            <CustomSelect
               value={item.targetFormat}
-              onChange={(e) => onFormatChange(item.id, e.target.value)}
+              onChange={(val) => onFormatChange(item.id, val)}
               disabled={isConverting || isPending}
-              className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 text-sm rounded-lg p-2 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all flex-1 sm:w-28 shadow-sm cursor-pointer"
-            >
-              {availableFormats.map(format => (
-                <option key={format.value} value={format.value}>{format.value.toUpperCase()}</option>
-              ))}
-            </select>
+              options={availableFormats.map(f => ({ value: f.value, label: f.value.toUpperCase() }))}
+              className="flex-1 sm:w-28"
+            />
           </div>
         )}
 
