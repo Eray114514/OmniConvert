@@ -1,4 +1,4 @@
-import { EXTENSION_MAP, IMAGE_FORMATS, EBOOK_FORMATS } from '../constants';
+import { EXTENSION_MAP, IMAGE_FORMATS, VIDEO_FORMATS, AUDIO_FORMATS, DOCUMENT_FORMATS } from '../constants';
 import { FileCategory, FormatOption } from '../types';
 
 export const getFileExtension = (filename: string): string => {
@@ -10,7 +10,9 @@ export const getFileCategory = (file: File): FileCategory => {
   if (EXTENSION_MAP[ext]) return EXTENSION_MAP[ext];
   
   if (file.type.startsWith('image/')) return 'image';
-  if (file.type.includes('pdf') || file.type.includes('epub') || file.name.endsWith('.mobi')) return 'ebook';
+  if (file.type.startsWith('video/')) return 'video';
+  if (file.type.startsWith('audio/')) return 'audio';
+  if (file.type.includes('pdf') || file.type.includes('document')) return 'document';
   
   return 'unknown';
 };
@@ -19,15 +21,12 @@ export const getAvailableFormats = (category: FileCategory, filename?: string): 
   switch (category) {
     case 'image':
       return IMAGE_FORMATS;
-    case 'ebook': {
-      if (!filename) return EBOOK_FORMATS;
-      const ext = getFileExtension(filename);
-      // Requirement: Remove PDF output for EPUB/MOBI inputs
-      if (ext === 'epub' || ext === 'mobi' || ext === 'azw3') {
-        return EBOOK_FORMATS.filter(f => f.value !== 'pdf');
-      }
-      return EBOOK_FORMATS;
-    }
+    case 'video':
+      return VIDEO_FORMATS;
+    case 'audio':
+      return AUDIO_FORMATS;
+    case 'document':
+      return DOCUMENT_FORMATS;
     default:
       return [];
   }

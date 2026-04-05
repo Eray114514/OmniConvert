@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { FileItem, ConversionStatus } from '../types';
-import { getAvailableFormats, formatFileSize } from '../utils/fileUtils';
-import { X, FileText, Image as ImageIcon, ArrowRight, AlertCircle, Loader2, Download, Check } from 'lucide-react';
+import { formatFileSize, getAvailableFormats } from '../utils/fileUtils';
+import { X, CheckCircle2, AlertCircle, FileImage, FileAudio, FileVideo, FileText, File as FileIcon, Loader2, Download } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface FileCardProps {
   item: FileItem;
@@ -10,115 +11,123 @@ interface FileCardProps {
 }
 
 const FileCard: React.FC<FileCardProps> = ({ item, onRemove, onFormatChange }) => {
-  const formats = useMemo(() => getAvailableFormats(item.category, item.name), [item.category, item.name]);
   const isConverting = item.status === ConversionStatus.CONVERTING;
   const isPending = item.status === ConversionStatus.PENDING;
   const isCompleted = item.status === ConversionStatus.COMPLETED;
   const isError = item.status === ConversionStatus.ERROR;
+  const isIdle = item.status === ConversionStatus.IDLE;
+
+  const availableFormats = getAvailableFormats(item.category, item.name);
+
+  const getCategoryIcon = () => {
+    switch (item.category) {
+      case 'image': return <FileImage className="text-blue-500" size={24} />;
+      case 'video': return <FileVideo className="text-purple-500" size={24} />;
+      case 'audio': return <FileAudio className="text-pink-500" size={24} />;
+      case 'document': return <FileText className="text-orange-500" size={24} />;
+      default: return <FileIcon className="text-slate-400" size={24} />;
+    }
+  };
+
+  const downloadFile = () => {
+    if (item.resultUrl) {
+      const link = document.createElement('a');
+      link.href = item.resultUrl;
+      link.download = `converted_${item.name.substring(0, item.name.lastIndexOf('.'))}.${item.targetFormat}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   return (
-    <div className={`
-      relative bg-white dark:bg-dark-card border rounded-xl p-4 flex items-center gap-4 transition-all duration-300 animate-slide-up group
-      ${isError ? 'border-red-500/50 bg-red-50 dark:bg-red-900/10 dark:border-red-900/50' : 'border-slate-200 dark:border-dark-border hover:border-primary-300 dark:hover:border-gray-600 shadow-sm'}
-      ${isCompleted ? 'bg-primary-50 dark:bg-primary-900/5 border-primary-100 dark:border-primary-900/30' : ''}
-    `}>
-      {/* Thumbnail / Icon */}
-      <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-lg overflow-hidden bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 flex items-center justify-center">
-        {item.previewUrl ? (
-          <img src={item.previewUrl} alt={item.name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="text-slate-400 dark:text-gray-500">
-            {item.category === 'image' ? <ImageIcon size={24} /> : <FileText size={24} />}
-          </div>
-        )}
-        
-        {isCompleted && (
-          <div className="absolute inset-0 bg-primary-600/10 dark:bg-primary-600/20 backdrop-blur-[1px] flex items-center justify-center">
-            <div className="bg-primary-500 rounded-full p-1 shadow-lg">
-              <Check size={14} className="text-white" strokeWidth={3} />
-            </div>
-          </div>
-        )}
-      </div>
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      layout
+      className={`
+        relative bg-white dark:bg-dark-card border rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 transition-all overflow-hidden shadow-sm
+        ${isConverting ? 'border-primary-300 dark:border-primary-500/50 shadow-primary-500/10' : 'border-slate-200 dark:border-dark-border hover:shadow-md'}
+        ${isCompleted ? 'border-green-300 dark:border-green-500/50 bg-green-50/30 dark:bg-green-500/5' : ''}
+        ${isError ? 'border-red-300 dark:border-red-500/50 bg-red-50/30 dark:bg-red-500/5' : ''}
+      `}
+    >
+      {/* Progress Bar Background */}
+      {(isConverting || isPending) && (
+        <div 
+          className="absolute top-0 left-0 h-full bg-primary-50 dark:bg-primary-900/20 transition-all duration-300 ease-out z-0"
+          style={{ width: `${item.progress}%` }}
+        />
+      )}
 
-      {/* Info */}
-      <div className="flex-grow min-w-0">
-        <div className="flex items-center justify-between mb-1">
-          <h4 className="font-medium text-slate-800 dark:text-gray-200 truncate pr-4 text-sm sm:text-base" title={item.name}>
+      <div className="flex items-center gap-4 flex-1 min-w-0 w-full relative z-10">
+        <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-gray-800 flex items-center justify-center shrink-0 overflow-hidden border border-slate-200 dark:border-gray-700">
+          {item.previewUrl ? (
+            <img src={item.previewUrl} alt="preview" className="w-full h-full object-cover" />
+          ) : (
+            getCategoryIcon()
+          )}
+        </div>
+        
+        <div className="flex-1 min-w-0">
+          <h4 className="text-sm font-semibold text-slate-800 dark:text-gray-200 truncate" title={item.name}>
             {item.name}
           </h4>
-          <button 
-            onClick={() => onRemove(item.id)}
-            className="text-slate-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-white/5 opacity-0 group-hover:opacity-100 focus:opacity-100"
-            disabled={isConverting}
-            title="移除文件"
-          >
-            <X size={16} />
-          </button>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-xs text-slate-500 dark:text-gray-400 font-medium bg-slate-100 dark:bg-gray-800 px-2 py-0.5 rounded">
+              {formatFileSize(item.size)}
+            </span>
+            {isError && <span className="text-xs text-red-500 truncate" title={item.errorMessage}>{item.errorMessage}</span>}
+            {isConverting && <span className="text-xs text-primary-500 font-medium">转换中 {Math.round(item.progress)}%</span>}
+            {isCompleted && <span className="text-xs text-green-500 font-medium">转换成功</span>}
+          </div>
         </div>
-        
-        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-gray-400">
-          <span>{formatFileSize(item.size)}</span>
-          <div className="w-1 h-1 rounded-full bg-slate-300 dark:bg-gray-600" />
-          <span className="uppercase">{item.name.split('.').pop()}</span>
-        </div>
-
-        {/* Status Bar / Error Message */}
-        {isError && (
-            <div className="mt-2 text-xs text-red-600 dark:text-red-400 flex items-center gap-1 font-medium">
-                <AlertCircle size={12} />
-                {item.errorMessage || "转换失败"}
-            </div>
-        )}
-        
-        {(isConverting || isPending) && (
-            <div className="mt-3 w-full h-1.5 bg-slate-200 dark:bg-gray-800 rounded-full overflow-hidden relative">
-                 {isPending && <div className="absolute inset-0 bg-slate-300 dark:bg-gray-700 animate-pulse" />}
-                <div 
-                    className="h-full bg-gradient-to-r from-primary-600 to-indigo-500 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(14,165,233,0.5)]"
-                    style={{ width: `${Math.max(item.progress, 5)}%` }}
-                />
-            </div>
-        )}
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center gap-3 flex-shrink-0">
-        
-        {!isCompleted && !isConverting && !isPending && (
-          <>
-            <ArrowRight size={16} className="text-slate-300 dark:text-gray-600 hidden sm:block" />
+      <div className="flex items-center gap-3 w-full sm:w-auto relative z-10 mt-2 sm:mt-0">
+        {!isCompleted && !isConverting && !isPending && availableFormats.length > 0 && (
+          <div className="flex items-center gap-2 flex-1 sm:flex-none">
+            <span className="text-xs text-slate-400 dark:text-gray-500 font-medium whitespace-nowrap">转为</span>
             <select
               value={item.targetFormat}
               onChange={(e) => onFormatChange(item.id, e.target.value)}
-              className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-200 text-xs sm:text-sm rounded-lg focus:ring-1 focus:ring-primary-500 focus:border-primary-500 block p-2 outline-none transition-colors hover:border-primary-300 dark:hover:border-gray-600 cursor-pointer shadow-sm"
+              disabled={isConverting || isPending}
+              className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 text-sm rounded-lg p-2 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all flex-1 sm:w-28 shadow-sm cursor-pointer"
             >
-              {formats.map(f => (
-                <option key={f.value} value={f.value}>{f.value.toUpperCase()}</option>
+              {availableFormats.map(format => (
+                <option key={format.value} value={format.value}>{format.value.toUpperCase()}</option>
               ))}
             </select>
-          </>
+          </div>
         )}
 
-        {isConverting && (
-            <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400 px-2 sm:px-4">
-                <Loader2 size={18} className="animate-spin" />
-                <span className="text-xs sm:text-sm font-medium hidden sm:inline">转换中...</span>
-            </div>
-        )}
-
-        {isCompleted && (
-           <a 
-             href={item.resultUrl} 
-             download={`converted_${item.name.substring(0, item.name.lastIndexOf('.'))}.${item.targetFormat}`}
-             className="flex items-center gap-2 bg-primary-600 hover:bg-primary-500 text-white shadow-lg shadow-primary-900/10 dark:shadow-primary-900/20 px-4 py-2 rounded-lg transition-all text-sm font-medium hover:scale-105 active:scale-95"
-           >
-             <Download size={16} />
-             <span className="hidden sm:inline">下载</span>
-           </a>
-        )}
+        {/* Status Icons & Actions */}
+        <div className="flex items-center justify-end gap-2 shrink-0 ml-auto">
+          {isConverting && <Loader2 size={20} className="text-primary-500 animate-spin" />}
+          {isCompleted && (
+            <button 
+              onClick={downloadFile}
+              className="p-2 text-white bg-green-500 hover:bg-green-600 rounded-lg shadow-sm shadow-green-500/30 transition-all active:scale-95"
+              title="下载文件"
+            >
+              <Download size={18} />
+            </button>
+          )}
+          {isError && <AlertCircle size={20} className="text-red-500" />}
+          
+          {(isIdle || isError || isCompleted) && (
+            <button 
+              onClick={() => onRemove(item.id)}
+              className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+              title="移除文件"
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

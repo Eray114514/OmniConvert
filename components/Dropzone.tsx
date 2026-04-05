@@ -1,75 +1,110 @@
-import React, { useCallback, useState } from 'react';
-import { Upload } from 'lucide-react';
+import React, { useCallback, useState, useRef } from 'react';
+import { UploadCloud, FileImage, FileAudio, FileVideo, FileText } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface DropzoneProps {
   onFilesAdded: (files: File[]) => void;
 }
 
 const Dropzone: React.FC<DropzoneProps> = ({ onFilesAdded }) => {
-  const [isDragging, setIsDragging] = useState(false);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragging(true);
+    e.stopPropagation();
+    setIsDragActive(true);
   }, []);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragging(false);
+    e.stopPropagation();
+    setIsDragActive(false);
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragging(false);
+    e.stopPropagation();
+    setIsDragActive(false);
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       onFilesAdded(Array.from(e.dataTransfer.files));
+      e.dataTransfer.clearData();
     }
   }, [onFilesAdded]);
 
-  const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       onFilesAdded(Array.from(e.target.files));
+      e.target.value = '';
     }
   }, [onFilesAdded]);
 
   return (
-    <div
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.4 }}
       className={`
-        relative w-full h-64 border-2 border-dashed rounded-2xl transition-all duration-300 ease-in-out cursor-pointer
-        flex flex-col items-center justify-center gap-4 group overflow-hidden
-        ${isDragging 
-          ? 'border-primary-500 bg-primary-500/10 scale-[1.01]' 
-          : 'border-slate-200 dark:border-dark-border bg-white dark:bg-dark-card hover:border-primary-400 dark:hover:border-primary-500/50 hover:bg-slate-50 dark:hover:bg-dark-card/80 shadow-sm'
+        relative overflow-hidden group w-full p-10 md:p-16 border-2 border-dashed rounded-3xl text-center cursor-pointer transition-all duration-300 ease-in-out
+        ${isDragActive 
+          ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-900/20 shadow-[0_0_30px_rgba(59,130,246,0.3)]' 
+          : 'border-slate-300 dark:border-gray-700 bg-white/50 dark:bg-dark-card/50 hover:border-primary-400 hover:bg-slate-50 dark:hover:bg-dark-card shadow-lg shadow-slate-200/50 dark:shadow-none backdrop-blur-md'
         }
       `}
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      onClick={() => fileInputRef.current?.click()}
     >
       <input
         type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
         multiple
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-        onChange={handleFileInput}
       />
-      
-      <div className={`p-4 rounded-full bg-primary-500/10 dark:bg-primary-500/20 text-primary-500 dark:text-primary-400 transition-transform duration-300 ${isDragging ? 'scale-110' : 'group-hover:scale-110'}`}>
-        <Upload size={40} strokeWidth={1.5} />
-      </div>
 
-      <div className="text-center z-0">
-        <h3 className="text-xl font-medium text-slate-700 dark:text-gray-200 mb-2 px-6">
-          {isDragging ? '释放文件以添加' : '拖拽文件到此处，或点击上传'}
+      {/* Decorative background elements */}
+      <div className="absolute top-[-50px] left-[-50px] w-32 h-32 bg-primary-400/20 rounded-full blur-[40px] pointer-events-none group-hover:scale-150 transition-transform duration-700" />
+      <div className="absolute bottom-[-50px] right-[-50px] w-32 h-32 bg-indigo-400/20 rounded-full blur-[40px] pointer-events-none group-hover:scale-150 transition-transform duration-700" />
+
+      <div className="flex flex-col items-center justify-center relative z-10">
+        <motion.div 
+          animate={{ scale: isDragActive ? 1.1 : 1, y: isDragActive ? -5 : 0 }}
+          className={`
+            p-5 rounded-full mb-6 transition-colors duration-300
+            ${isDragActive ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400' : 'bg-slate-100 text-slate-500 dark:bg-gray-800 dark:text-gray-400 group-hover:bg-primary-50 dark:group-hover:bg-primary-900/30 group-hover:text-primary-500'}
+          `}
+        >
+          <UploadCloud size={48} strokeWidth={1.5} />
+        </motion.div>
+
+        <h3 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-gray-100 mb-2">
+          {isDragActive ? '松开鼠标以上传文件' : '点击或拖拽文件到这里'}
         </h3>
-        <p className="text-sm text-slate-500 dark:text-gray-400">
-          支持 JPG, PNG, WEBP, MOBI, EPUB, PDF 等多种格式
+        
+        <p className="text-slate-500 dark:text-gray-400 mb-8 max-w-md mx-auto">
+          全部在您的浏览器本地处理，数据绝不会上传至任何服务器，确保 100% 隐私安全。
         </p>
-      </div>
 
-      {/* Decorative background blurs */}
-      <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-violet-500/5 rounded-full blur-3xl pointer-events-none" />
-    </div>
+        <div className="flex flex-wrap justify-center gap-4 text-xs font-medium text-slate-500 dark:text-gray-400">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-900 rounded-full shadow-sm border border-slate-100 dark:border-gray-800">
+            <FileImage size={14} className="text-blue-500" /> 图片 (JPG, PNG, WebP, AVIF)
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-900 rounded-full shadow-sm border border-slate-100 dark:border-gray-800">
+            <FileVideo size={14} className="text-purple-500" /> 视频 (MP4, WebM, GIF)
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-900 rounded-full shadow-sm border border-slate-100 dark:border-gray-800">
+            <FileAudio size={14} className="text-pink-500" /> 音频 (MP3, WAV)
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-900 rounded-full shadow-sm border border-slate-100 dark:border-gray-800">
+            <FileText size={14} className="text-orange-500" /> 文档 (PDF, DOCX)
+          </div>
+        </div>
+      </div>
+    </motion.div>
   );
 };
 

@@ -117,19 +117,14 @@ const App: React.FC = () => {
     const conversionPromises = filesToConvert.map(async (item) => {
       setFiles(prev => prev.map(f => f.id === item.id ? { ...f, status: ConversionStatus.CONVERTING, progress: 10, errorMessage: undefined } : f));
 
-      const progressInterval = setInterval(() => {
+      const result = await processFileConversion(item, (progress) => {
         setFiles(prev => prev.map(f => {
           if (f.id === item.id && f.status === ConversionStatus.CONVERTING) {
-             const nextProgress = f.progress + Math.random() * 15;
-             return { ...f, progress: Math.min(nextProgress, 90) };
+             return { ...f, progress };
           }
           return f;
         }));
-      }, 200);
-
-      const result = await processFileConversion(item);
-
-      clearInterval(progressInterval);
+      });
 
       if (result.success && result.blob) {
         const url = URL.createObjectURL(result.blob);
@@ -226,14 +221,14 @@ const App: React.FC = () => {
                     className="flex-1 sm:flex-none bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 text-sm rounded-lg p-2.5 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all cursor-pointer shadow-sm"
                     onChange={(e) => {
                        const val = e.target.value;
-                       if(val) applyGlobalFormat(val, 'ebook');
+                       if(val) applyGlobalFormat(val, 'video');
+                       setGlobalTargetFormat(val);
                     }}
                     defaultValue=""
                   >
-                     <option value="" disabled>电子书 (EPUB/TXT...)</option>
-                     <option value="txt">全部转为 TXT</option>
-                     <option value="epub">全部转为 EPUB</option>
-                     <option value="mobi">全部转为 MOBI</option>
+                     <option value="" disabled>视频格式 (MP4/GIF...)</option>
+                     <option value="mp4">全部转为 MP4</option>
+                     <option value="gif">全部转为 GIF</option>
                   </select>
                 </div>
               </div>

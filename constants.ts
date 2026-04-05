@@ -1,42 +1,54 @@
-import { FormatOption } from './types';
+import { FormatOption, FileCategory } from './types';
 
 // Supported Image Formats
 export const IMAGE_FORMATS: FormatOption[] = [
   { value: 'png', label: 'PNG Image', mimeType: 'image/png' },
   { value: 'jpeg', label: 'JPEG Image', mimeType: 'image/jpeg' },
   { value: 'webp', label: 'WebP Image', mimeType: 'image/webp' },
-  { value: 'bmp', label: 'BMP Image', mimeType: 'image/bmp' },
 ];
 
-// Supported E-book Formats
-export const EBOOK_FORMATS: FormatOption[] = [
-  { value: 'epub', label: 'EPUB E-book', mimeType: 'application/epub+zip' },
-  { value: 'mobi', label: 'MOBI E-book', mimeType: 'application/x-mobipocket-ebook' },
+// Supported Video Formats
+export const VIDEO_FORMATS: FormatOption[] = [
+  { value: 'mp4', label: 'MP4 Video', mimeType: 'video/mp4' },
+  { value: 'webm', label: 'WebM Video', mimeType: 'video/webm' },
+  { value: 'gif', label: 'GIF Animation', mimeType: 'image/gif' },
+];
+
+// Supported Audio Formats
+export const AUDIO_FORMATS: FormatOption[] = [
+  { value: 'mp3', label: 'MP3 Audio', mimeType: 'audio/mpeg' },
+  { value: 'wav', label: 'WAV Audio', mimeType: 'audio/wav' },
+];
+
+// Supported Document Formats
+export const DOCUMENT_FORMATS: FormatOption[] = [
   { value: 'pdf', label: 'PDF Document', mimeType: 'application/pdf' },
-  { value: 'txt', label: 'TXT Text', mimeType: 'text/plain' },
-  { value: 'azw3', label: 'AZW3 Kindle', mimeType: 'application/vnd.amazon.ebook' },
 ];
 
 // Mapping extension to categories
-export const EXTENSION_MAP: Record<string, 'image' | 'ebook'> = {
+export const EXTENSION_MAP: Record<string, FileCategory> = {
   'png': 'image',
   'jpg': 'image',
   'jpeg': 'image',
   'webp': 'image',
   'bmp': 'image',
-  'gif': 'image',
   'svg': 'image',
-  'epub': 'ebook',
-  'mobi': 'ebook',
-  'azw3': 'ebook',
-  'pdf': 'ebook',
-  'txt': 'ebook',
+  'mp4': 'video',
+  'webm': 'video',
+  'mov': 'video',
+  'avi': 'video',
+  'mp3': 'audio',
+  'wav': 'audio',
+  'ogg': 'audio',
+  'docx': 'document',
+  'pdf': 'document',
 };
 
 // Default target formats based on category
-export const DEFAULT_TARGETS = {
+export const DEFAULT_TARGETS: Record<FileCategory, string> = {
   image: 'png',
-  ebook: 'epub',
+  video: 'mp4',
+  audio: 'mp3',
   document: 'pdf',
   unknown: 'txt',
 };

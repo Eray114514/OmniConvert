@@ -1,0 +1,6 @@
+- [x] 1. 项目启动时无报错，且浏览器的 Network / Headers 面板中确认已成功注入 `Cross-Origin-Opener-Policy` 和 `Cross-Origin-Embedder-Policy`，`SharedArrayBuffer` 处于可用状态。
+- [x] 2. 界面全局呈现深色优先 (Dark Mode First) 的设计，具备毛玻璃、阴影、发光等高级交互动效。
+- [x] 3. 成功将一张图片转换为其他格式，逻辑使用的是纯前端 WASM ArrayBuffer 技术。
+- [x] 4. 成功加载 `FFmpeg.wasm`，并将一段小视频（如 MP4）转换为 GIF 或 MP3，且在 UI 上能够看到真实的转换进度数值（如 10%, 50%, 100%）。
+- [x] 5. 可以在断网（离线）状态下，对已加载环境继续完成格式转换。
+- [x] 6. 所有虚假的 `setTimeout` 延迟逻辑已被完全彻底移除。
