@@ -64,4 +64,4 @@ npm run preview
 
 ## 📄 许可证
 
-本项目为私有/专属项目 (Private)。
+本项目基于 [MIT 许可证](LICENSE) 开源，欢迎提交 Issue 和 Pull Request！
