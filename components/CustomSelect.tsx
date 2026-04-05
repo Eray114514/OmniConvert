@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
@@ -32,25 +33,54 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
 
   const selectedOption = options.find((opt) => opt.value === value);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
+      // We check if the click is outside the button AND outside the portal
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        if (dropdownRef.current && dropdownRef.current.contains(event.target as Node)) {
+          return;
+        }
         setIsOpen(false);
       }
     };
+    const updatePosition = () => {
+      if (containerRef.current && isOpen) {
+        setRect(containerRef.current.getBoundingClientRect());
+      }
+    };
+
     document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, []);
+    window.addEventListener('scroll', updatePosition, true); // true to catch all scrolls
+    window.addEventListener('resize', updatePosition);
+    
+    if (isOpen) {
+      updatePosition();
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [isOpen]);
 
   return (
     <div className={cn("relative", className)} ref={containerRef}>
       <button
         type="button"
         disabled={disabled}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={(e) => {
+          e.preventDefault();
+          if (!isOpen && containerRef.current) {
+            setRect(containerRef.current.getBoundingClientRect());
+          }
+          setIsOpen(!isOpen);
+        }}
         className={cn(
           "w-full flex items-center justify-between bg-white/70 dark:bg-dark-card/70 backdrop-blur-md border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-200 text-sm rounded-lg p-2.5 outline-none transition-all shadow-sm hover:shadow-md hover:bg-white/90 dark:hover:bg-dark-card/90",
           disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-primary-400 dark:hover:border-primary-500",
@@ -67,13 +97,21 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       </button>
 
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && rect && createPortal(
           <motion.div
-            initial={{ opacity: 0, y: -5, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -5, scale: 0.98 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute z-50 w-full mt-1.5 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border border-slate-200/80 dark:border-gray-700/80 rounded-xl shadow-xl py-1.5 max-h-60 overflow-y-auto ring-1 ring-black/5 dark:ring-white/5 custom-scrollbar"
+            ref={dropdownRef}
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.15 }}
+            style={{
+              position: 'fixed',
+              top: `${rect.bottom + 6}px`,
+              left: `${rect.left}px`,
+              width: `${rect.width}px`,
+              zIndex: 9999,
+            }}
+            className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-gray-700/80 rounded-xl shadow-xl py-1.5 max-h-60 overflow-y-auto ring-1 ring-black/5 dark:ring-white/5 custom-scrollbar"
           >
             {options.length === 0 ? (
                <div className="px-3 py-2 text-sm text-slate-500 dark:text-gray-400 text-center">
@@ -89,10 +127,10 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                     setIsOpen(false);
                   }}
                   className={cn(
-                    "w-[calc(100%-8px)] mx-1 text-left px-3 py-2.5 text-sm transition-all rounded-md flex items-center justify-between group",
+                    "w-[calc(100%-8px)] mx-1 text-left px-3 py-2.5 text-sm transition-colors rounded-md flex items-center justify-between group cursor-pointer",
                     value === option.value
-                      ? "bg-primary-50/80 dark:bg-primary-500/20 text-primary-600 dark:text-primary-400 font-semibold hover:bg-primary-100/80 dark:hover:bg-primary-500/30"
-                      : "text-slate-600 dark:text-gray-300 hover:bg-slate-100/70 dark:hover:bg-gray-800/50 hover:text-slate-900 dark:hover:text-white"
+                      ? "bg-primary-50 dark:bg-primary-500/20 text-primary-600 dark:text-primary-400 font-semibold"
+                      : "text-slate-700 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
                   )}
                 >
                   <span className="relative z-10">{option.label}</span>
@@ -102,7 +140,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                 </button>
               ))
             )}
-          </motion.div>
+          </motion.div>,
+          document.body
         )}
       </AnimatePresence>
     </div>
