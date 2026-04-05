@@ -1,7 +1,7 @@
 import React from 'react';
 import { FileItem, ConversionStatus } from '../types';
 import { formatFileSize, getAvailableFormats } from '../utils/fileUtils';
-import { X, CheckCircle2, AlertCircle, FileImage, FileAudio, FileVideo, FileText, File as FileIcon, Loader2, Download } from 'lucide-react';
+import { X, CheckCircle2, AlertCircle, FileImage, FileAudio, FileVideo, FileText, Book, File as FileIcon, Loader2, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CustomSelect from './CustomSelect';
 
@@ -26,6 +26,7 @@ const FileCard: React.FC<FileCardProps> = ({ item, onRemove, onFormatChange }) =
       case 'video': return <FileVideo className="text-purple-500" size={24} />;
       case 'audio': return <FileAudio className="text-pink-500" size={24} />;
       case 'document': return <FileText className="text-orange-500" size={24} />;
+      case 'ebook': return <Book className="text-emerald-500" size={24} />;
       default: return <FileIcon className="text-slate-400" size={24} />;
     }
   };

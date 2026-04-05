@@ -1,4 +1,4 @@
-export type FileCategory = 'image' | 'video' | 'audio' | 'document' | 'unknown';
+export type FileCategory = 'image' | 'video' | 'audio' | 'document' | 'ebook' | 'unknown';
 
 export enum ConversionStatus {
   IDLE = 'IDLE',

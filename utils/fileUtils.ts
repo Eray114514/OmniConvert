@@ -1,4 +1,4 @@
-import { EXTENSION_MAP, IMAGE_FORMATS, VIDEO_FORMATS, AUDIO_FORMATS, DOCUMENT_FORMATS } from '../constants';
+import { EXTENSION_MAP, IMAGE_FORMATS, VIDEO_FORMATS, AUDIO_FORMATS, DOCUMENT_FORMATS, EBOOK_FORMATS } from '../constants';
 import { FileCategory, FormatOption } from '../types';
 
 export const getFileExtension = (filename: string): string => {
@@ -13,6 +13,7 @@ export const getFileCategory = (file: File): FileCategory => {
   if (file.type.startsWith('video/')) return 'video';
   if (file.type.startsWith('audio/')) return 'audio';
   if (file.type.includes('pdf') || file.type.includes('document')) return 'document';
+  if (file.type.includes('epub') || file.type === 'text/plain' || file.type === 'text/markdown') return 'ebook';
   
   return 'unknown';
 };
@@ -27,6 +28,8 @@ export const getAvailableFormats = (category: FileCategory, filename?: string): 
       return AUDIO_FORMATS;
     case 'document':
       return DOCUMENT_FORMATS;
+    case 'ebook':
+      return EBOOK_FORMATS;
     default:
       return [];
   }
