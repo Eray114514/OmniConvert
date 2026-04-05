@@ -181,3 +181,124 @@ function escapeHtml(unsafe: string): string {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
+
+export const convertFromEpub = async (
+  file: File,
+  targetFormat: string,
+  onProgress?: (progress: number) => void
+): Promise<ConversionResult> => {
+  try {
+    onProgress?.(10);
+    const zip = await JSZip.loadAsync(file);
+    onProgress?.(30);
+
+    // Find container.xml
+    const containerFile = zip.file('META-INF/container.xml');
+    if (!containerFile) throw new Error('无效的 EPUB 文件：缺失 container.xml');
+
+    const containerXml = await containerFile.async('text');
+    const parser = new DOMParser();
+    const containerDoc = parser.parseFromString(containerXml, 'text/xml');
+    const rootfileNode = containerDoc.querySelector('rootfile');
+    if (!rootfileNode) throw new Error('无效的 EPUB 文件：缺失 rootfile 节点');
+    
+    const opfPath = rootfileNode.getAttribute('full-path');
+    if (!opfPath) throw new Error('无效的 EPUB 文件：缺失 full-path 属性');
+
+    onProgress?.(40);
+    const opfFile = zip.file(opfPath);
+    if (!opfFile) throw new Error('无效的 EPUB 文件：找不到 OPF 文件');
+    
+    const opfXml = await opfFile.async('text');
+    const opfDoc = parser.parseFromString(opfXml, 'text/xml');
+    
+    // Find spine and manifest
+    const spine = opfDoc.querySelector('spine');
+    const manifest = opfDoc.querySelector('manifest');
+    if (!spine || !manifest) throw new Error('无效的 EPUB 文件：缺失 spine 或 manifest');
+
+    const itemrefs = Array.from(spine.querySelectorAll('itemref'));
+    
+    // Base path of OPF
+    const opfDir = opfPath.includes('/') ? opfPath.substring(0, opfPath.lastIndexOf('/')) : '';
+
+    onProgress?.(50);
+    
+    let fullText = '';
+    const totalItems = itemrefs.length;
+
+    for (let i = 0; i < itemrefs.length; i++) {
+      const idref = itemrefs[i].getAttribute('idref');
+      if (!idref) continue;
+
+      const item = manifest.querySelector(`item[id="${idref}"]`);
+      if (!item) continue;
+
+      const href = item.getAttribute('href');
+      if (!href) continue;
+
+      // Handle relative paths correctly
+      const itemPath = opfDir ? `${opfDir}/${href}` : href;
+      // Some EPUBs use URL encoding in hrefs
+      const decodedPath = decodeURIComponent(itemPath);
+      const htmlFile = zip.file(decodedPath) || zip.file(itemPath);
+      
+      if (htmlFile) {
+        const htmlContent = await htmlFile.async('text');
+        const htmlDoc = parser.parseFromString(htmlContent, 'text/html');
+        
+        // Very basic HTML to Text extraction
+        // For Markdown, we just use text for now to keep it lightweight, or add basic bold/italic if needed.
+        // To keep it simple and robust:
+        let text = htmlDoc.body.textContent || '';
+        
+        if (targetFormat === 'md') {
+          // Attempt a very basic markdown conversion for headings and paragraphs
+          const elements = Array.from(htmlDoc.body.querySelectorAll('h1, h2, h3, h4, h5, h6, p'));
+          if (elements.length > 0) {
+            text = elements.map(el => {
+              const tag = el.tagName.toLowerCase();
+              const content = el.textContent?.trim() || '';
+              if (!content) return '';
+              
+              if (tag === 'h1') return `# ${content}`;
+              if (tag === 'h2') return `## ${content}`;
+              if (tag === 'h3') return `### ${content}`;
+              if (tag === 'h4') return `#### ${content}`;
+              if (tag === 'h5') return `##### ${content}`;
+              if (tag === 'h6') return `###### ${content}`;
+              return content;
+            }).filter(Boolean).join('\n\n');
+          } else {
+            text = text.replace(/\n\s*\n/g, '\n\n').trim();
+          }
+        } else {
+          text = text.replace(/\n\s*\n/g, '\n\n').trim();
+        }
+        
+        fullText += text + '\n\n';
+      }
+      
+      onProgress?.(50 + (i / totalItems) * 40);
+    }
+    
+    onProgress?.(95);
+
+    const mimeType = targetFormat === 'md' ? 'text/markdown' : 'text/plain';
+    const blob = new Blob([fullText.trim()], { type: mimeType });
+
+    onProgress?.(100);
+
+    return {
+      success: true,
+      blob
+    };
+
+  } catch (error) {
+    console.error('EPUB parse error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '解析 EPUB 时发生错误'
+    };
+  }
+};

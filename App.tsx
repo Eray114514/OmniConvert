@@ -205,34 +205,83 @@ const App: React.FC = () => {
                   <span>批量目标:</span>
                 </div>
                 
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <CustomSelect
-                    className="flex-1 sm:w-48"
-                    placeholder="图片格式 (JPG/PNG...)"
-                    value={globalTargetFormat}
-                    options={[
-                      { value: 'png', label: '全部转为 PNG' },
-                      { value: 'jpeg', label: '全部转为 JPG' },
-                      { value: 'webp', label: '全部转为 WEBP' },
-                    ]}
-                    onChange={(val) => {
-                       applyGlobalFormat(val, 'image');
-                       setGlobalTargetFormat(val);
-                    }}
-                  />
-                  <CustomSelect
-                    className="flex-1 sm:w-48"
-                    placeholder="视频格式 (MP4/GIF...)"
-                    value={globalTargetFormat}
-                    options={[
-                      { value: 'mp4', label: '全部转为 MP4' },
-                      { value: 'gif', label: '全部转为 GIF' },
-                    ]}
-                    onChange={(val) => {
-                       applyGlobalFormat(val, 'video');
-                       setGlobalTargetFormat(val);
-                    }}
-                  />
+                <div className="flex gap-2 w-full sm:w-auto flex-wrap">
+                  {files.some(f => f.category === 'image') && (
+                    <CustomSelect
+                      className="flex-1 sm:w-48"
+                      placeholder="图片格式 (JPG/PNG...)"
+                      value={globalTargetFormat}
+                      options={[
+                        { value: 'png', label: '全部转为 PNG' },
+                        { value: 'jpeg', label: '全部转为 JPG' },
+                        { value: 'webp', label: '全部转为 WEBP' },
+                      ]}
+                      onChange={(val) => {
+                         applyGlobalFormat(val, 'image');
+                         setGlobalTargetFormat(val);
+                      }}
+                    />
+                  )}
+                  {files.some(f => f.category === 'video') && (
+                    <CustomSelect
+                      className="flex-1 sm:w-48"
+                      placeholder="视频格式 (MP4/GIF...)"
+                      value={globalTargetFormat}
+                      options={[
+                        { value: 'mp4', label: '全部转为 MP4' },
+                        { value: 'gif', label: '全部转为 GIF' },
+                      ]}
+                      onChange={(val) => {
+                         applyGlobalFormat(val, 'video');
+                         setGlobalTargetFormat(val);
+                      }}
+                    />
+                  )}
+                  {files.some(f => f.category === 'audio') && (
+                    <CustomSelect
+                      className="flex-1 sm:w-48"
+                      placeholder="音频格式 (MP3/WAV...)"
+                      value={globalTargetFormat}
+                      options={[
+                        { value: 'mp3', label: '全部转为 MP3' },
+                        { value: 'wav', label: '全部转为 WAV' },
+                      ]}
+                      onChange={(val) => {
+                         applyGlobalFormat(val, 'audio');
+                         setGlobalTargetFormat(val);
+                      }}
+                    />
+                  )}
+                  {files.some(f => f.category === 'document') && (
+                    <CustomSelect
+                      className="flex-1 sm:w-48"
+                      placeholder="文档格式 (PDF...)"
+                      value={globalTargetFormat}
+                      options={[
+                        { value: 'pdf', label: '全部转为 PDF' },
+                      ]}
+                      onChange={(val) => {
+                         applyGlobalFormat(val, 'document');
+                         setGlobalTargetFormat(val);
+                      }}
+                    />
+                  )}
+                  {files.some(f => f.category === 'ebook') && (
+                    <CustomSelect
+                      className="flex-1 sm:w-48"
+                      placeholder="电子书格式 (EPUB/TXT...)"
+                      value={globalTargetFormat}
+                      options={[
+                        { value: 'epub', label: '全部转为 EPUB' },
+                        { value: 'txt', label: '全部转为 TXT' },
+                        { value: 'md', label: '全部转为 MD' },
+                      ]}
+                      onChange={(val) => {
+                         applyGlobalFormat(val, 'ebook');
+                         setGlobalTargetFormat(val);
+                      }}
+                    />
+                  )}
                 </div>
               </div>
 

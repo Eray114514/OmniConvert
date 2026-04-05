@@ -103,7 +103,7 @@ const Dropzone: React.FC<DropzoneProps> = ({ onFilesAdded }) => {
             <FileText size={14} className="text-orange-500" /> 文档 (PDF, DOCX)
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-900 rounded-full shadow-sm border border-slate-100 dark:border-gray-800">
-            <Book size={14} className="text-emerald-500" /> 电子书 (TXT, MD 转 EPUB)
+            <Book size={14} className="text-emerald-500" /> 电子书 (TXT, MD, EPUB)
           </div>
         </div>
       </div>

@@ -28,6 +28,8 @@ export const DOCUMENT_FORMATS: FormatOption[] = [
 // Supported Ebook Formats
 export const EBOOK_FORMATS: FormatOption[] = [
   { value: 'epub', label: 'EPUB E-book', mimeType: 'application/epub+zip' },
+  { value: 'txt', label: 'Plain Text', mimeType: 'text/plain' },
+  { value: 'md', label: 'Markdown', mimeType: 'text/markdown' },
 ];
 
 // Mapping extension to categories

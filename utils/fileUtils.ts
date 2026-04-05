@@ -19,20 +19,33 @@ export const getFileCategory = (file: File): FileCategory => {
 };
 
 export const getAvailableFormats = (category: FileCategory, filename?: string): FormatOption[] => {
+  let formats: FormatOption[] = [];
   switch (category) {
     case 'image':
-      return IMAGE_FORMATS;
+      formats = IMAGE_FORMATS;
+      break;
     case 'video':
-      return VIDEO_FORMATS;
+      formats = VIDEO_FORMATS;
+      break;
     case 'audio':
-      return AUDIO_FORMATS;
+      formats = AUDIO_FORMATS;
+      break;
     case 'document':
-      return DOCUMENT_FORMATS;
+      formats = DOCUMENT_FORMATS;
+      break;
     case 'ebook':
-      return EBOOK_FORMATS;
+      formats = EBOOK_FORMATS;
+      break;
     default:
-      return [];
+      formats = [];
   }
+  
+  if (filename) {
+    const ext = getFileExtension(filename);
+    return formats.filter(f => f.value !== ext);
+  }
+  
+  return formats;
 };
 
 export const formatFileSize = (bytes: number): string => {
