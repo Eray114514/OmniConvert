@@ -2,6 +2,7 @@ import { ConversionResult, FileItem } from '../types';
 import { convertImage } from './imageConverter';
 import { convertMedia } from './mediaConverter';
 import { convertDocument } from './documentConverter';
+import { convertToEpub } from './ebookConverter';
 
 export const processFileConversion = async (
   item: FileItem, 
@@ -16,6 +17,11 @@ export const processFileConversion = async (
         return await convertMedia(item.file, item.targetFormat, onProgress);
       case 'document':
         return await convertDocument(item.file, item.targetFormat, onProgress);
+      case 'ebook':
+        if (item.targetFormat === 'epub') {
+          return await convertToEpub(item.file, onProgress);
+        }
+        return { success: false, error: 'Unsupported target format for ebook' };
       default:
         return { success: false, error: 'Unsupported file category' };
     }

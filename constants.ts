@@ -25,6 +25,11 @@ export const DOCUMENT_FORMATS: FormatOption[] = [
   { value: 'pdf', label: 'PDF Document', mimeType: 'application/pdf' },
 ];
 
+// Supported Ebook Formats
+export const EBOOK_FORMATS: FormatOption[] = [
+  { value: 'epub', label: 'EPUB E-book', mimeType: 'application/epub+zip' },
+];
+
 // Mapping extension to categories
 export const EXTENSION_MAP: Record<string, FileCategory> = {
   'png': 'image',
@@ -42,6 +47,9 @@ export const EXTENSION_MAP: Record<string, FileCategory> = {
   'ogg': 'audio',
   'docx': 'document',
   'pdf': 'document',
+  'txt': 'ebook',
+  'md': 'ebook',
+  'epub': 'ebook',
 };
 
 // Default target formats based on category
@@ -50,5 +58,6 @@ export const DEFAULT_TARGETS: Record<FileCategory, string> = {
   video: 'mp4',
   audio: 'mp3',
   document: 'pdf',
+  ebook: 'epub',
   unknown: 'txt',
 };
