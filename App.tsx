@@ -286,13 +286,14 @@ const App: React.FC = () => {
 
           {/* File List */}
           <div className="grid gap-3 min-h-[200px]">
-            {files.map(file => (
-              <FileCard 
-                key={file.id} 
-                item={file} 
-                onRemove={removeFile}
-                onFormatChange={updateFileFormat}
-              />
+            {files.map((file, index) => (
+              <div key={file.id} style={{ zIndex: files.length - index }} className="relative">
+                <FileCard 
+                  item={file} 
+                  onRemove={removeFile}
+                  onFormatChange={updateFileFormat}
+                />
+              </div>
             ))}
             
             {!hasFiles && (

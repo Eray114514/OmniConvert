@@ -50,7 +50,7 @@ const FileCard: React.FC<FileCardProps> = ({ item, onRemove, onFormatChange }) =
       exit={{ opacity: 0, scale: 0.95 }}
       layout
       className={`
-        relative bg-white dark:bg-dark-card border rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 transition-all overflow-hidden shadow-sm
+        relative bg-white dark:bg-dark-card border rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 transition-all shadow-sm
         ${isConverting ? 'border-primary-300 dark:border-primary-500/50 shadow-primary-500/10' : 'border-slate-200 dark:border-dark-border hover:shadow-md'}
         ${isCompleted ? 'border-green-300 dark:border-green-500/50 bg-green-50/30 dark:bg-green-500/5' : ''}
         ${isError ? 'border-red-300 dark:border-red-500/50 bg-red-50/30 dark:bg-red-500/5' : ''}
@@ -58,10 +58,12 @@ const FileCard: React.FC<FileCardProps> = ({ item, onRemove, onFormatChange }) =
     >
       {/* Progress Bar Background */}
       {(isConverting || isPending) && (
-        <div 
-          className="absolute top-0 left-0 h-full bg-primary-50 dark:bg-primary-900/20 transition-all duration-300 ease-out z-0"
-          style={{ width: `${item.progress}%` }}
-        />
+        <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none z-0">
+          <div 
+            className="absolute top-0 left-0 h-full bg-primary-50 dark:bg-primary-900/20 transition-all duration-300 ease-out"
+            style={{ width: `${item.progress}%` }}
+          />
+        </div>
       )}
 
       <div className="flex items-center gap-4 flex-1 min-w-0 w-full relative z-10">

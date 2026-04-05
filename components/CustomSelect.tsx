@@ -26,7 +26,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   options,
   value,
   onChange,
-  placeholder = 'Select option',
+  placeholder = '请选择',
   disabled = false,
   className = '',
 }) => {
@@ -52,32 +52,32 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         disabled={disabled}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "w-full flex items-center justify-between bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 text-sm rounded-lg p-2.5 outline-none transition-all shadow-sm",
+          "w-full flex items-center justify-between bg-white dark:bg-dark-card border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-200 text-sm rounded-lg p-2.5 outline-none transition-all shadow-sm hover:shadow",
           disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-primary-400 dark:hover:border-primary-500",
-          isOpen && "border-primary-500 ring-1 ring-primary-500"
+          isOpen && "border-primary-500 ring-2 ring-primary-500/20 dark:ring-primary-500/30 shadow-primary-500/10"
         )}
       >
-        <span className="truncate pr-2">
+        <span className="truncate pr-2 font-medium">
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronDown
           size={16}
-          className={cn("text-slate-400 transition-transform duration-200", isOpen && "rotate-180")}
+          className={cn("text-slate-400 transition-transform duration-200", isOpen && "rotate-180 text-primary-500")}
         />
       </button>
 
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.15 }}
-            className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden py-1 max-h-60 overflow-y-auto"
+            initial={{ opacity: 0, y: -5, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -5, scale: 0.98 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="absolute z-50 w-full mt-1.5 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border border-slate-200/80 dark:border-gray-700/80 rounded-xl shadow-xl py-1.5 max-h-60 overflow-y-auto ring-1 ring-black/5 dark:ring-white/5 custom-scrollbar"
           >
             {options.length === 0 ? (
                <div className="px-3 py-2 text-sm text-slate-500 dark:text-gray-400 text-center">
-                 No options
+                 无可用选项
                </div>
             ) : (
               options.map((option) => (
@@ -89,13 +89,16 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                     setIsOpen(false);
                   }}
                   className={cn(
-                    "w-full text-left px-3 py-2 text-sm transition-colors",
+                    "w-[calc(100%-8px)] mx-1 text-left px-3 py-2.5 text-sm transition-all rounded-md flex items-center justify-between group",
                     value === option.value
-                      ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 font-medium"
-                      : "text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800"
+                      ? "bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 font-semibold"
+                      : "text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 hover:text-slate-900 dark:hover:text-white"
                   )}
                 >
-                  {option.label}
+                  <span className="relative z-10">{option.label}</span>
+                  {value === option.value && (
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary-500 shadow-[0_0_5px_rgba(14,165,233,0.5)]"></div>
+                  )}
                 </button>
               ))
             )}
