@@ -6,6 +6,7 @@ import { processFileConversion } from './services/conversionService';
 import Dropzone from './components/Dropzone';
 import FileCard from './components/FileCard';
 import Header from './components/Header';
+import CustomSelect from './components/CustomSelect';
 import { Trash2, Play, Settings2, DownloadCloud, Sparkles, Sun, Moon } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -156,7 +157,9 @@ const App: React.FC = () => {
       setTimeout(() => {
         const link = document.createElement('a');
         link.href = file.resultUrl!;
-        link.download = `converted_${file.name.substring(0, file.name.lastIndexOf('.'))}.${file.targetFormat}`;
+        const dotIndex = file.name.lastIndexOf('.');
+        const baseName = dotIndex > -1 ? file.name.substring(0, dotIndex) : file.name;
+        link.download = `converted_${baseName}.${file.targetFormat}`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -203,33 +206,33 @@ const App: React.FC = () => {
                 </div>
                 
                 <div className="flex gap-2 w-full sm:w-auto">
-                  <select 
-                    className="flex-1 sm:flex-none bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 text-sm rounded-lg p-2.5 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all cursor-pointer shadow-sm"
-                    onChange={(e) => {
-                       const val = e.target.value;
-                       if(val) applyGlobalFormat(val, 'image');
+                  <CustomSelect
+                    className="flex-1 sm:w-48"
+                    placeholder="图片格式 (JPG/PNG...)"
+                    value={globalTargetFormat}
+                    options={[
+                      { value: 'png', label: '全部转为 PNG' },
+                      { value: 'jpeg', label: '全部转为 JPG' },
+                      { value: 'webp', label: '全部转为 WEBP' },
+                    ]}
+                    onChange={(val) => {
+                       applyGlobalFormat(val, 'image');
                        setGlobalTargetFormat(val);
                     }}
-                    defaultValue=""
-                  >
-                    <option value="" disabled>图片格式 (JPG/PNG...)</option>
-                    <option value="png">全部转为 PNG</option>
-                    <option value="jpeg">全部转为 JPG</option>
-                    <option value="webp">全部转为 WEBP</option>
-                  </select>
-                  <select 
-                    className="flex-1 sm:flex-none bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 text-sm rounded-lg p-2.5 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all cursor-pointer shadow-sm"
-                    onChange={(e) => {
-                       const val = e.target.value;
-                       if(val) applyGlobalFormat(val, 'video');
+                  />
+                  <CustomSelect
+                    className="flex-1 sm:w-48"
+                    placeholder="视频格式 (MP4/GIF...)"
+                    value={globalTargetFormat}
+                    options={[
+                      { value: 'mp4', label: '全部转为 MP4' },
+                      { value: 'gif', label: '全部转为 GIF' },
+                    ]}
+                    onChange={(val) => {
+                       applyGlobalFormat(val, 'video');
                        setGlobalTargetFormat(val);
                     }}
-                    defaultValue=""
-                  >
-                     <option value="" disabled>视频格式 (MP4/GIF...)</option>
-                     <option value="mp4">全部转为 MP4</option>
-                     <option value="gif">全部转为 GIF</option>
-                  </select>
+                  />
                 </div>
               </div>
 
