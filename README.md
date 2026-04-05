@@ -30,8 +30,7 @@
 ### 1. 克隆项目
 
 ```bash
-git clone <your-repo-url>
-cd omniconverter
+git clone https://github.com/Eray114514/OmniConvert.git
 ```
 
 ### 2. 安装依赖
@@ -64,4 +63,4 @@ npm run preview
 
 ## 📄 许可证
 
-本项目基于 [MIT 许可证](LICENSE) 开源，欢迎提交 Issue 和 Pull Request！
+本项目基于 [MIT 许可证](LICENSE) 开源。
