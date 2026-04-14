@@ -5,6 +5,7 @@ export const IMAGE_FORMATS: FormatOption[] = [
   { value: 'png', label: 'PNG Image', mimeType: 'image/png' },
   { value: 'jpeg', label: 'JPEG Image', mimeType: 'image/jpeg' },
   { value: 'webp', label: 'WebP Image', mimeType: 'image/webp' },
+  { value: 'bmp', label: 'BMP Image', mimeType: 'image/bmp' },
 ];
 
 // Supported Video Formats
@@ -12,12 +13,15 @@ export const VIDEO_FORMATS: FormatOption[] = [
   { value: 'mp4', label: 'MP4 Video', mimeType: 'video/mp4' },
   { value: 'webm', label: 'WebM Video', mimeType: 'video/webm' },
   { value: 'gif', label: 'GIF Animation', mimeType: 'image/gif' },
+  { value: 'mov', label: 'MOV Video', mimeType: 'video/quicktime' },
+  { value: 'avi', label: 'AVI Video', mimeType: 'video/x-msvideo' },
 ];
 
 // Supported Audio Formats
 export const AUDIO_FORMATS: FormatOption[] = [
   { value: 'mp3', label: 'MP3 Audio', mimeType: 'audio/mpeg' },
   { value: 'wav', label: 'WAV Audio', mimeType: 'audio/wav' },
+  { value: 'ogg', label: 'OGG Audio', mimeType: 'audio/ogg' },
 ];
 
 // Supported Document Formats

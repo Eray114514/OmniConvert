@@ -49,6 +49,8 @@ export const convertMedia = async (file: File, targetFormat: string, onProgress?
       args = ['-i', inputName, '-vn', '-acodec', 'libmp3lame', '-q:a', '2', outputName];
     } else if (targetFormat === 'wav') {
       args = ['-i', inputName, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', outputName];
+    } else if (targetFormat === 'ogg') {
+      args = ['-i', inputName, '-vn', '-acodec', 'libvorbis', outputName];
     } else {
       // General video conversion
       args = ['-i', inputName, outputName];
@@ -71,8 +73,11 @@ export const convertMedia = async (file: File, targetFormat: string, onProgress?
     if (targetFormat === 'mp4') mimeType = 'video/mp4';
     if (targetFormat === 'webm') mimeType = 'video/webm';
     if (targetFormat === 'gif') mimeType = 'image/gif';
+    if (targetFormat === 'mov') mimeType = 'video/quicktime';
+    if (targetFormat === 'avi') mimeType = 'video/x-msvideo';
     if (targetFormat === 'mp3') mimeType = 'audio/mpeg';
     if (targetFormat === 'wav') mimeType = 'audio/wav';
+    if (targetFormat === 'ogg') mimeType = 'audio/ogg';
 
     return {
       success: true,
